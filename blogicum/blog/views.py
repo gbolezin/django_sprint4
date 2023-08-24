@@ -12,8 +12,8 @@ from django.views.generic import (
     CreateView, DetailView, ListView, UpdateView, DeleteView
 )
 
-from blog.models import Post, Comment, Category
 from blog.forms import PostForm, CommentForm, ProfileUpdateForm
+from blog.models import Post, Comment, Category
 
 
 class ProfileDetailView(DetailView):
@@ -27,16 +27,16 @@ class ProfileDetailView(DetailView):
         if self.kwargs.get('username'):
             context['profile'] = get_user_model().objects.get(
                 username=self.kwargs['username']
-                )
+            )
             paginator = Paginator(
                 self.object.posts.select_related('author').
                 order_by('-pub_date').
                 annotate(comment_count=Count('comments')),
                 10
-                )
+            )
             context['page_obj'] = paginator.get_page(
                 self.request.GET.get('page')
-                )
+            )
         return context
 
 
@@ -65,7 +65,7 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
         return reverse(
             'blog:profile',
             kwargs={'username': self.object.username}
-            )
+        )
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -81,7 +81,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         return reverse(
             'blog:profile',
             kwargs={'username': self.request.user.username}
-            )
+        )
 
 
 class PostUpdateView(LoginRequiredMixin, UpdateView):
@@ -99,7 +99,7 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
         return reverse(
             'blog:post_detail',
             kwargs={'pk': self.object.pk}
-            )
+        )
 
 
 class PostDeleteView(LoginRequiredMixin, DeleteView):
@@ -127,7 +127,7 @@ class PostListView(ListView):
                 is_published=True,
                 category__is_published=True,
                 pub_date__lte=datetime.datetime.now()
-            ).annotate(comment_count=Count('comments'))
+        ).annotate(comment_count=Count('comments'))
 
 
 class PostDetailView(DetailView):
@@ -161,18 +161,17 @@ class CategoryDetailView(DetailView):
             context['category'] = get_object_or_404(
                 Category,
                 slug=self.kwargs['slug'], is_published=True
-                )
+            )
             paginator = Paginator(
                 self.object.posts.select_related('category').
                 filter(
                     is_published=True,
                     category__is_published=True,
                     pub_date__lte=datetime.datetime.now()
-                    ), 10
-                )
+                    ), 10)
             context['page_obj'] = paginator.get_page(
                 self.request.GET.get('page')
-                )
+            )
         return context
 
 
@@ -206,7 +205,7 @@ class CommentUpdateView(LoginRequiredMixin, UpdateView):
                     Comment,
                     post=self.post_object,
                     id=self.kwargs['comment_id']
-                    )
+        )
         if comment_object.author != request.user:
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
@@ -216,13 +215,13 @@ class CommentUpdateView(LoginRequiredMixin, UpdateView):
         if self.kwargs.get('post_id'):
             post_object = get_object_or_404(
                 Post, id=self.kwargs['post_id']
-                )
+            )
             if self.kwargs.get('comment_id'):
                 context['comment'] = get_object_or_404(
                     Comment,
                     post=post_object,
                     id=self.kwargs['comment_id']
-                    )
+                )
         return context
 
     def form_valid(self, form):
@@ -246,7 +245,7 @@ class CommentDeleteView(LoginRequiredMixin, DeleteView):
                     Comment,
                     post=self.post_object,
                     id=self.kwargs['comment_id']
-                    )
+        )
         if comment_object.author != request.user:
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
@@ -256,13 +255,13 @@ class CommentDeleteView(LoginRequiredMixin, DeleteView):
         if self.kwargs.get('post_id'):
             post_object = get_object_or_404(
                 Post, id=self.kwargs['post_id']
-                )
+            )
             if self.kwargs.get('comment_id'):
                 context['comment'] = get_object_or_404(
                     Comment,
                     post=post_object,
                     id=self.kwargs['comment_id']
-                    )
+                )
         return context
 
     def form_valid(self, form):
