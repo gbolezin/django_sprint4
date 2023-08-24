@@ -5,12 +5,12 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
-from django.shortcuts import get_object_or_404
+from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy, reverse
 from django.views.generic import (
     CreateView, DetailView, ListView, UpdateView, DeleteView
 )
-from django.db import transaction
-from django.urls import reverse_lazy, reverse
 
 from blog.models import Post, Comment, Category
 from blog.forms import PostForm, CommentForm, ProfileUpdateForm
@@ -61,22 +61,11 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
             )
         return context
 
-    def form_valid(self, form):
-        context = self.get_context_data()
-        user_form = context['user_form']
-        with transaction.atomic():
-            if all([form.is_valid(), user_form.is_valid()]):
-                user_form.save()
-                form.save()
-            else:
-                context.update({'user_form': user_form})
-                return self.render_to_response(context)
-        return super(ProfileUpdateView, self).form_valid(form)
-
     def get_success_url(self):
-        return reverse_lazy('blog:profile',
-                            kwargs={'username': self.object.username}
-                            )
+        return reverse(
+            'blog:profile',
+            kwargs={'username': self.object.username}
+            )
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -89,28 +78,33 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('blog:profile',
-                       kwargs={'username': self.request.user.username})
+        return reverse(
+            'blog:profile',
+            kwargs={'username': self.request.user.username}
+            )
 
 
 class PostUpdateView(LoginRequiredMixin, UpdateView):
     model = Post
     form_class = PostForm
     template_name = 'blog/create.html'
-    success_url = reverse_lazy('blog:index')
 
     def dispatch(self, request, *args, **kwargs):
-        post = get_object_or_404(Post, pk=kwargs['pk'])
-        if post.author != request.user:
-            raise PermissionDenied
+        post_object = get_object_or_404(Post, pk=kwargs['pk'])
+        if post_object.author != request.user:
+            return redirect('blog:post_detail', pk=kwargs['pk'])
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse('blog:post_detail', kwargs={'pk': self.post.pk})
+        return reverse(
+            'blog:post_detail',
+            kwargs={'pk': self.object.pk}
+            )
 
 
 class PostDeleteView(LoginRequiredMixin, DeleteView):
     model = Post
+    form = PostForm
     template_name = 'blog/create.html'
     success_url = reverse_lazy('blog:index')
 
@@ -139,6 +133,12 @@ class PostListView(ListView):
 class PostDetailView(DetailView):
     model = Post
     template_name = 'blog/detail.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        post = get_object_or_404(Post, pk=kwargs['pk'])
+        if not post.is_published and post.author != request.user:
+            raise Http404
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

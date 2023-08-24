@@ -63,8 +63,9 @@ class Post(PublishedModel):
     slug = models.SlugField(
         max_length=64,
         verbose_name='Идентификатор',
-        null=True,
+        null=False,
         blank=False,
+        default='default',
         help_text=(
             'Идентификатор страницы для URL; '
             'разрешены символы латиницы, цифры, '
@@ -144,6 +145,3 @@ class Comment(PublishedModel):
         verbose_name = 'комментарий'
         verbose_name_plural = 'Комментарии'
         ordering = ('created_at',)
-
-    def __str__(self):
-        return self.title
