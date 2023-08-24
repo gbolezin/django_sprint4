@@ -124,9 +124,9 @@ class PostListView(ListView):
     def get_queryset(self, **kwargs):
         qs = super().get_queryset(**kwargs)
         return qs.filter(
-                is_published=True,
-                category__is_published=True,
-                pub_date__lte=datetime.datetime.now()
+            is_published=True,
+            category__is_published=True,
+            pub_date__lte=datetime.datetime.now()
         ).annotate(comment_count=Count('comments'))
 
 
@@ -144,7 +144,7 @@ class PostDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['form'] = CommentForm()
         context['comments'] = (
-             self.object.comments.select_related('post').order_by('created_at')
+            self.object.comments.select_related('post').order_by('created_at')
         )
         return context
 
@@ -168,7 +168,8 @@ class CategoryDetailView(DetailView):
                     is_published=True,
                     category__is_published=True,
                     pub_date__lte=datetime.datetime.now()
-                    ), 10)
+                ), 10
+            )
             context['page_obj'] = paginator.get_page(
                 self.request.GET.get('page')
             )
@@ -202,9 +203,9 @@ class CommentUpdateView(LoginRequiredMixin, UpdateView):
     def dispatch(self, request, *args, **kwargs):
         self.post_object = get_object_or_404(Post, pk=kwargs['post_id'])
         comment_object = get_object_or_404(
-                    Comment,
-                    post=self.post_object,
-                    id=self.kwargs['comment_id']
+            Comment,
+            post=self.post_object,
+            id=self.kwargs['comment_id']
         )
         if comment_object.author != request.user:
             raise PermissionDenied
@@ -242,9 +243,9 @@ class CommentDeleteView(LoginRequiredMixin, DeleteView):
     def dispatch(self, request, *args, **kwargs):
         self.post_object = get_object_or_404(Post, pk=kwargs['post_id'])
         comment_object = get_object_or_404(
-                    Comment,
-                    post=self.post_object,
-                    id=self.kwargs['comment_id']
+            Comment,
+            post=self.post_object,
+            id=self.kwargs['comment_id']
         )
         if comment_object.author != request.user:
             raise PermissionDenied
