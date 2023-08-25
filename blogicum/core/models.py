@@ -6,7 +6,6 @@ class PublishedModel(models.Model):
     is_published = models.BooleanField(
         default=True,
         verbose_name='Опубликовано',
-        null=False,
         help_text='Снимите галочку, чтобы скрыть публикацию.'
     )
 
