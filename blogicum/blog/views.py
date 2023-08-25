@@ -27,7 +27,7 @@ class ProfileDetailView(ListView):
         self.author = get_object_or_404(User, username=self.kwargs['username'])
         return Post.objects.filter(
             author=self.author,
-            ).order_by('-pub_date').annotate(comment_count=Count('comments'))
+        ).order_by('-pub_date').annotate(comment_count=Count('comments'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -149,7 +149,7 @@ class CategoryDetailView(ListView):
             is_published=True,
             category__is_published=True,
             pub_date__lte=datetime.datetime.now()
-            ).order_by('-pub_date').annotate(comment_count=Count('comments'))
+        ).order_by('-pub_date').annotate(comment_count=Count('comments'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
