@@ -3,8 +3,8 @@ from django.contrib.auth import get_user_model
 
 from core.models import PublishedModel
 
-MAX_LENGTH_256 = 256
-MAX_LENGTH_64 = 64
+MAX_LENGTH_TITLE = 256
+MAX_LENGTH_SLUG = 64
 MAX_LENGTH_STR_TITLE = 10
 MAX_LENGTH_STR_TEXT = 20
 User = get_user_model()
@@ -12,14 +12,14 @@ User = get_user_model()
 
 class Category(PublishedModel):
     title = models.CharField(
-        max_length=MAX_LENGTH_256,
+        max_length=MAX_LENGTH_TITLE,
         verbose_name='Заголовок'
     )
     description = models.TextField(
         verbose_name='Описание',
     )
     slug = models.SlugField(
-        max_length=MAX_LENGTH_64,
+        max_length=MAX_LENGTH_SLUG,
         unique=True,
         verbose_name='Идентификатор',
         help_text=(
@@ -39,7 +39,7 @@ class Category(PublishedModel):
 
 class Location(PublishedModel):
     name = models.CharField(
-        max_length=MAX_LENGTH_256,
+        max_length=MAX_LENGTH_TITLE,
         verbose_name='Название места',
         null=False
     )
@@ -54,7 +54,7 @@ class Location(PublishedModel):
 
 class Post(PublishedModel):
     title = models.CharField(
-        max_length=MAX_LENGTH_256,
+        max_length=MAX_LENGTH_TITLE,
         verbose_name='Заголовок',
         blank=False
     )
@@ -62,7 +62,7 @@ class Post(PublishedModel):
         verbose_name='Текст'
     )
     slug = models.SlugField(
-        max_length=MAX_LENGTH_64,
+        max_length=MAX_LENGTH_SLUG,
         verbose_name='Идентификатор',
         blank=False,
         default='default',

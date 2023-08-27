@@ -18,8 +18,6 @@ POSTS_PER_PAGE = 10
 
 class ProfileDetailView(ListView):
     model = Post
-    slug_field = 'username'
-    slug_url_kwarg = 'username'
     template_name = 'blog/profile.html'
     paginate_by = POSTS_PER_PAGE
 
@@ -132,8 +130,6 @@ class PostDetailView(DetailView, FormMixin):
 
 class CategoryDetailView(ListView):
     model = Post
-    slug_field = 'slug'
-    slug_url_kwarg = 'slug'
     template_name = 'blog/category.html'
     paginate_by = POSTS_PER_PAGE
 
